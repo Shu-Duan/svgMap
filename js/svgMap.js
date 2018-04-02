@@ -27,7 +27,6 @@ panto
 			'targer':document.querySelector('#'+me.option.target),
 			'map' :document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
 			'zoomLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
-			'markerLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'startX':0,
 			'startY':0,
 			'translateX':0,
@@ -65,7 +64,6 @@ panto
 			image.style.height=param.targer.clientHeight;
 			param.zoomLayer.appendChild(image);
 			param.map.appendChild(param.zoomLayer);
-			param.map.appendChild(param.markerLayer);
 			param.targer.appendChild(param.map);
 		}
 		this.initZoomEvent=function(){
@@ -78,9 +76,9 @@ panto
 			image.style.width=markerOpt.width;
 			image.style.height=markerOpt.height;
 			markerOpt.infoWindow;
+			image.setAttribute('transform', 'translate('+markerOpt.x+','+markerOpt.y+')');
 			imageParent.appendChild(image);
-			imageParent.setAttribute('transform', 'translate('+markerOpt.x+','+markerOpt.y+') scale(1)');
-			param.markerLayer.appendChild(imageParent);
+			param.zoomLayer.appendChild(imageParent);
 		}
 		svgMap.prototype.zoomEventOn = function () {
 			param.map.addEventListener("mousedown", function(event){

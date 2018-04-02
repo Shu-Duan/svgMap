@@ -1,13 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script type="text/javascript" src="svgMap.js"></script>
-<title>Page Title</title>
+<script type="text/javascript" src="js/svgMap.js" width="2000" height="1000"></script>
+<title>Example</title>
 </head>
 <body>
 <div id="svg" style="width:2000px;height:1000px"></div>
 <script>
-var svg=new svgMap({target:'svg',url:'https://mdn.mozillademos.org/files/6457/mdn_logo_only_color.png'});
+	const svg=new svgMap(
+		{
+			target:'svg',
+			url:'image/world-map.jpg'
+		}
+	);
+	svg.setMarker(
+		{
+			icon:'image/plane.jpg',
+			x:500,
+			y:300,
+			width:30,
+			height:30
+		}
+	);
 </script>
 </body>
 </html>
