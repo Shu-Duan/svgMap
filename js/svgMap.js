@@ -38,22 +38,26 @@ panto
 		};
 		let mouseup=function(event){
 			me.zoomEventOff();
-			param.translateX=(param.startX-event.clientX+param.translateX);
-			param.translateY=(param.startY-event.clientY+param.translateY);
+			param.translateXt=(param.translateX-param.startX+event.clientX);
+			param.translateYt=(param.translateY-param.startY+event.clientY);
+			param.translateX=param.translateXt;
+			param.translateY=param.translateYt;
 		}
 		let mouseout=function(event){
 			me.zoomEventOff();
-			param.translateX=(param.startX-event.clientX+param.translateX);
-			param.translateY=(param.startY-event.clientY+param.translateY);
+			param.translateXt=(param.translateX-param.startX+event.clientX);
+			param.translateYt=(param.translateY-param.startY+event.clientY);
+			param.translateX=param.translateXt;
+			param.translateY=param.translateYt;
 		}
 		let mousemove=function(event){
-			param.translateXt=(param.startX-event.clientX+param.translateX);
-			param.translateYt=(param.startY-event.clientY+param.translateY);
+			param.translateXt=(param.translateX-param.startX+event.clientX);
+			param.translateYt=(param.translateY-param.startY+event.clientY);
 			param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
 		}
     	this.init= function(){
 			me.initImage();
-			me.initZoomEvent();
+			me.initMapEvent();
     	}
 		this.initImage=function(){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
@@ -66,8 +70,9 @@ panto
 			param.map.appendChild(param.zoomLayer);
 			param.targer.appendChild(param.map);
 		}
-		this.initZoomEvent=function(){
+		this.initMapEvent=function(){
 			me.zoomEventOn();
+			me.dragEventOn();
 		}
 		this.setMarker=function(markerOpt){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
@@ -80,7 +85,7 @@ panto
 			imageParent.appendChild(image);
 			param.zoomLayer.appendChild(imageParent);
 		}
-		svgMap.prototype.zoomEventOn = function () {
+		svgMap.prototype.dragEventOn = function () {
 			param.map.addEventListener("mousedown", function(event){
 				param.startX=event.clientX;
 				param.startY=event.clientY;
@@ -88,6 +93,8 @@ panto
 				param.map.addEventListener("mouseup", mouseup);
 				param.map.addEventListener("mousemove", mousemove);
 			});
+		}
+		svgMap.prototype.zoomEventOn = function () {
 			param.map.addEventListener("wheel", function(event){
 				event.preventDefault();
 				if(event.deltaY>0){
@@ -98,6 +105,8 @@ panto
 				} else{
 					param.scale+=param.scaleUnit;
 				}
+				//param.translateXt=(param.translateX);
+				//param.translateYt=(param.translateY);
 				param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
 			});
 		}
