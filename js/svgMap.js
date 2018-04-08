@@ -62,10 +62,14 @@ panto
 		this.initImage=function(){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
 			param.map.setAttribute('viewBox', '0 0 '+param.targer.clientWidth+' '+param.targer.clientHeight);
+			param.map.setAttribute('id', 'svgMap_'+me.option.target);
 			param.zoomLayer.setAttribute('transform', 'translate(0,0) scale(1)');
+			param.zoomLayer.setAttribute('id', 'svgLayer_'+me.option.target);
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', me.option.url);
 			image.style.width=param.targer.clientWidth;
 			image.style.height=param.targer.clientHeight;
+			image.setAttribute('width', param.targer.clientWidth);
+			image.setAttribute('height', param.targer.clientHeight);
 			param.zoomLayer.appendChild(image);
 			param.map.appendChild(param.zoomLayer);
 			param.targer.appendChild(param.map);
@@ -73,6 +77,7 @@ panto
 		this.initMapEvent=function(){
 			me.zoomEventOn();
 			me.dragEventOn();
+			me.resizeEventOn();
 		}
 		this.setMarker=function(markerOpt){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
@@ -80,10 +85,17 @@ panto
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', markerOpt.icon);
 			image.style.width=markerOpt.width;
 			image.style.height=markerOpt.height;
+			// TODO
 			markerOpt.infoWindow;
-			image.setAttribute('transform', 'translate('+markerOpt.x+','+markerOpt.y+')');
+			// TODO
+			const p=me.getSvgPosition(markerOpt.x,markerOpt.y);
+			image.setAttribute('transform', 'translate('+p.x+','+p.y+')');
 			imageParent.appendChild(image);
 			param.zoomLayer.appendChild(imageParent);
+			return imageParent;
+		}
+		svgMap.prototype.resizeEventOn = function () {
+			// TODO
 		}
 		svgMap.prototype.dragEventOn = function () {
 			param.map.addEventListener("mousedown", function(event){
@@ -105,15 +117,32 @@ panto
 				} else{
 					param.scale+=param.scaleUnit;
 				}
-				//param.translateXt=(param.translateX);
-				//param.translateYt=(param.translateY);
+				const p=me.getSvgPosition(event.clientX,event.clientY);
+				// TODO
+				param.translateXt=(-1*p.x*param.scale)+event.clientX-param.targer.offsetLeft;
+				param.translateYt=(-1*p.y*param.scale)+event.clientY-param.targer.offsetTop;
+				param.translateX=param.translateXt;
+				param.translateY=param.translateYt;
 				param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
+
 			});
 		}
 		svgMap.prototype.zoomEventOff = function () {
 			param.map.removeEventListener("mouseleave", mouseout);
 			param.map.removeEventListener("mouseup", mouseup);
 			param.map.removeEventListener("mousemove",  mousemove);
+		}
+		svgMap.prototype.getSvgPosition= function(clientX, clientY) {
+			let m = document.querySelector("#svgLayer_"+me.option.target).getScreenCTM();
+			let map = document.querySelector("#svgMap_"+me.option.target);
+			let p = map.createSVGPoint();
+			p.x = clientX;
+			p.y = clientY;
+			p = p.matrixTransform(m.inverse());
+			return ({
+				x : p.x,
+				y : p.y
+			});
 		}
 		me.init();
 	});
