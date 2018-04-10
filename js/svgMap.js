@@ -10,6 +10,7 @@
 			'map' :document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
 			'zoomLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'markerLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+			'polyLineLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'startX':0,
 			'startY':0,
 			'translateX':0,
@@ -55,6 +56,7 @@
 			image.setAttribute('height', me.option.height);
 			param.zoomLayer.appendChild(image);
 			param.zoomLayer.appendChild(param.markerLayer);
+			param.zoomLayer.appendChild(param.polyLineLayer);
 			param.map.appendChild(param.zoomLayer);
 			param.targer.appendChild(param.map);
 		}
@@ -87,8 +89,20 @@
 			param.scale=scale;
 			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
 		}
-		this.setPolyLine=function(){
-			//TODO
+		this.setPolyLine=function(option){
+			let polyLine = document.createElementNS('http://www.w3.org/2000/svg','polyline');
+			let path=[];
+			if(!option.positions.length){
+				return;
+			}
+			option.positions.forEach(function(p) {
+				path.push(p.x+","+p.y);
+			});
+			polyLine.setAttributeNS(null, "points", path.join(" "));
+			polyLine.setAttributeNS(null, "fill", option.color);
+			polyLine.setAttributeNS(null, "stroke", option.color);
+			param.polyLineLayer.appendChild(polyLine);
+			return polyLine;
 		}
 		svgMap.prototype.dragEventOn = function () {
 			param.map.addEventListener("mousedown", function(event){
