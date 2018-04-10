@@ -1,21 +1,3 @@
-/*
-target
-url
-center
-zoom
-// TODO
-px percentage drag event problem
-*/
-/*
-setmarker(tooltip)(infowindow)
-setpolyline
-setpolygan
-setchart
-setcontextmenu
-removemarker
-zoomto
-panto
-*/
 'use strict';
 (function(root, factory) {
 	root.svgMap = factory(root);
@@ -27,6 +9,7 @@ panto
 			'targer':document.querySelector('#'+me.option.target),
 			'map' :document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
 			'zoomLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+			'markerLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'startX':0,
 			'startY':0,
 			'translateX':0,
@@ -61,41 +44,51 @@ panto
     	}
 		this.initImage=function(){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
-			param.map.setAttribute('viewBox', '0 0 '+param.targer.clientWidth+' '+param.targer.clientHeight);
+			param.map.setAttribute('viewBox', '0 0 '+me.option.width+' '+me.option.height);
 			param.map.setAttribute('id', 'svgMap_'+me.option.target);
 			param.zoomLayer.setAttribute('transform', 'translate(0,0) scale(1)');
 			param.zoomLayer.setAttribute('id', 'svgLayer_'+me.option.target);
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', me.option.url);
-			image.style.width=param.targer.clientWidth;
-			image.style.height=param.targer.clientHeight;
-			image.setAttribute('width', param.targer.clientWidth);
-			image.setAttribute('height', param.targer.clientHeight);
+			image.style.width=me.option.width;
+			image.style.height=me.option.height;
+			image.setAttribute('width', me.option.width);
+			image.setAttribute('height', me.option.height);
 			param.zoomLayer.appendChild(image);
+			param.zoomLayer.appendChild(param.markerLayer);
 			param.map.appendChild(param.zoomLayer);
 			param.targer.appendChild(param.map);
 		}
 		this.initMapEvent=function(){
 			me.zoomEventOn();
 			me.dragEventOn();
-			me.resizeEventOn();
 		}
 		this.setMarker=function(markerOpt){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
-			let imageParent = document.createElementNS('http://www.w3.org/2000/svg','g');
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', markerOpt.icon);
 			image.style.width=markerOpt.width;
 			image.style.height=markerOpt.height;
 			// TODO
 			markerOpt.infoWindow;
 			// TODO
-			const p=me.getSvgPosition(markerOpt.x,markerOpt.y);
-			image.setAttribute('transform', 'translate('+p.x+','+p.y+')');
-			imageParent.appendChild(image);
-			param.zoomLayer.appendChild(imageParent);
-			return imageParent;
+			markerOpt.tooltip;
+			image.setAttribute('transform', 'translate('+markerOpt.x+','+markerOpt.y+')');
+			param.markerLayer.appendChild(image);
+			return image;
 		}
-		svgMap.prototype.resizeEventOn = function () {
-			// TODO
+		this.removeMarker=function(marker){
+			marker.remove();
+		}
+		this.panTo=function(position){
+			param.translateX=position.x;
+			param.translateY=position.y;
+			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
+		}
+		this.zoomTo=function(scale){
+			param.scale=scale;
+			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
+		}
+		this.setPolyLine=function(){
+			//TODO
 		}
 		svgMap.prototype.dragEventOn = function () {
 			param.map.addEventListener("mousedown", function(event){
@@ -118,9 +111,8 @@ panto
 					param.scale+=param.scaleUnit;
 				}
 				const p=me.getSvgPosition(event.clientX,event.clientY);
-				// TODO
-				param.translateXt=(-1*p.x*param.scale)+event.clientX-param.targer.offsetLeft;
-				param.translateYt=(-1*p.y*param.scale)+event.clientY-param.targer.offsetTop;
+				param.translateXt=(-1*p.x*param.scale)+(event.clientX-param.targer.offsetLeft+document.documentElement.scrollLeft)/(param.targer.clientWidth/me.option.width);
+				param.translateYt=(-1*p.y*param.scale)+(event.clientY-param.targer.offsetTop+document.documentElement.scrollTop)/(param.targer.clientWidth/me.option.width);
 				param.translateX=param.translateXt;
 				param.translateY=param.translateYt;
 				param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');

@@ -6,32 +6,42 @@
 </head>
 <body>
 <h2>Demo</h2>
-<div id="svg" style="width:100%;height:600px"></div>
+<div id="svg" style="width:100%;height:100%"></div>
 <script>
 	const svg=new svgMap(
 		{
 			target:'svg',
-			url:'image/world-map.svg'
+			url:'image/world-map.svg',
+			width:'1000',
+			height:'600'
 		}
 	);
-	svg.setMarker(
+	const icon1=svg.setMarker(
 		{
-			icon:'image/plane.jpg',
+			icon:'image/plane.png',
 			x:300,
 			y:300,
-			width:25,
-			height:25
+			width:15,
+			height:15
 		}
 	);
-	svg.setMarker(
+	const icon2=svg.setMarker(
 		{
-			icon:'image/plane.jpg',
+			icon:'image/plane.png',
 			x:500,
 			y:300,
-			width:25,
-			height:25
+			width:15,
+			height:15
 		}
 	);
+	svg.removeMarker(icon1);
+	svg.panTo(
+		{
+			x:-150,
+			y:-200
+		}
+	);
+	svg.zoomTo(2);
 </script>
 </body>
 </html>
