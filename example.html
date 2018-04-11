@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="stylesheet" type="text/css" href="css/svgMap.css">
 <script type="text/javascript" src="js/svgMap.js"></script>
 <title>Example</title>
 </head>
@@ -19,14 +20,16 @@
 		x:300,
 		y:300,
 		width:15,
-		height:15
+		height:15,
+		tooltip:'test'
 	});
 	const icon2=svg.setMarker({
 		icon:'image/plane.png',
 		x:500,
 		y:300,
 		width:15,
-		height:15
+		height:15,
+		tooltip:'test'
 	});
 	svg.removeMarker(icon1);
 	svg.panTo({

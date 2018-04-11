@@ -11,6 +11,7 @@
 			'zoomLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'markerLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'polyLineLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
+			'tooltipBox' :document.createElement('div'),
 			'startX':0,
 			'startY':0,
 			'translateX':0,
@@ -58,6 +59,8 @@
 			param.zoomLayer.appendChild(param.markerLayer);
 			param.zoomLayer.appendChild(param.polyLineLayer);
 			param.map.appendChild(param.zoomLayer);
+			param.tooltipBox.setAttribute('class','svgMap_tooltip svgMap_hidden');
+			param.targer.appendChild(param.tooltipBox);
 			param.targer.appendChild(param.map);
 		}
 		this.initMapEvent=function(){
@@ -72,7 +75,20 @@
 			// TODO
 			markerOpt.infoWindow;
 			// TODO
-			markerOpt.tooltip;
+			image.addEventListener("mouseenter", function(event){
+				let text = document.createTextNode(markerOpt.tooltip);
+				param.tooltipBox.appendChild(text);
+				param.tooltipBox.setAttribute('class','svgMap_tooltip');
+				const p=me.getSvgPosition(markerOpt.x,markerOpt.y);
+				param.tooltipBox.style.left=event.clientX+'px';
+				param.tooltipBox.style.top=event.clientY+'px';
+			});
+			image.addEventListener("mouseout", function(event){
+				param.tooltipBox.setAttribute('class','svgMap_tooltip svgMap_hidden');
+				while (param.tooltipBox.hasChildNodes()) {
+					param.tooltipBox.removeChild(param.tooltipBox.lastChild);
+				}
+			});
 			image.setAttribute('transform', 'translate('+markerOpt.x+','+markerOpt.y+')');
 			param.markerLayer.appendChild(image);
 			return image;
