@@ -12,6 +12,7 @@
 			'markerLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'polyLineLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'tooltipBox' :document.createElement('div'),
+			'infoWindow' :document.createElement('div'),
 			'startX':0,
 			'startY':0,
 			'translateX':0,
@@ -19,7 +20,8 @@
 			'scale' : 1,
 			'translateXt' :0,
 			'translateYt' :0,
-			'scaleUnit':.5
+			'scaleUnit':.5,
+			'mc':0
 		};
 		let mouseup=function(event){
 			me.zoomEventOff();
@@ -39,6 +41,11 @@
 			param.translateXt=(param.translateX-param.startX+event.clientX);
 			param.translateYt=(param.translateY-param.startY+event.clientY);
 			param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
+			for (let node of param.infoWindow.children) {
+				var image=document.querySelector('#marker_'+node.dataset.markerMapping);
+				node.style.left=image.getBoundingClientRect().x+'px';
+				node.style.top=image.getBoundingClientRect().y-node.offsetHeight+'px';
+			}
 		}
     	this.init= function(){
 			me.initImage();
@@ -61,6 +68,7 @@
 			param.map.appendChild(param.zoomLayer);
 			param.tooltipBox.setAttribute('class','svgMap_tooltip svgMap_hidden');
 			param.targer.appendChild(param.tooltipBox);
+			param.targer.appendChild(param.infoWindow);
 			param.targer.appendChild(param.map);
 		}
 		this.initMapEvent=function(){
@@ -69,19 +77,16 @@
 		}
 		this.setMarker=function(markerOpt){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
+			let mc=param.mc+=1;
+			let node;
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', markerOpt.icon);
 			image.style.width=markerOpt.width;
 			image.style.height=markerOpt.height;
-			// TODO
-			markerOpt.infoWindow;
-			// TODO
 			image.addEventListener("mouseenter", function(event){
-				let text = document.createTextNode(markerOpt.tooltip);
-				param.tooltipBox.appendChild(text);
+				param.tooltipBox.innerHTML =markerOpt.tooltip;
 				param.tooltipBox.setAttribute('class','svgMap_tooltip');
-				const p=me.getSvgPosition(markerOpt.x,markerOpt.y);
-				param.tooltipBox.style.left=event.clientX+'px';
-				param.tooltipBox.style.top=event.clientY+'px';
+				param.tooltipBox.style.left=image.getBoundingClientRect().x+'px';
+				param.tooltipBox.style.top=image.getBoundingClientRect().y+image.getBoundingClientRect().height+'px';
 			});
 			image.addEventListener("mouseout", function(event){
 				param.tooltipBox.setAttribute('class','svgMap_tooltip svgMap_hidden');
@@ -89,6 +94,25 @@
 					param.tooltipBox.removeChild(param.tooltipBox.lastChild);
 				}
 			});
+			image.addEventListener("mousedown", function(event){
+				if (!param.infoWindow.contains(node)){
+					node = document.createElement("div");
+					node.innerHTML += markerOpt.infoWindow;
+					node.setAttribute('class','svgMap_infowindow');
+					
+					node.dataset.markerMapping=mc;
+					param.infoWindow.appendChild(node);
+					let close = document.createElement("span");
+					close.setAttribute('class','svgMap_close');
+					close.addEventListener("click", function(event){
+						node.remove();
+					});
+					node.prepend(close);
+					node.style.left=image.getBoundingClientRect().x+'px';
+					node.style.top=image.getBoundingClientRect().y-node.offsetHeight+'px';
+				}
+			});
+			image.setAttribute('id', 'marker_'+mc);
 			image.setAttribute('transform', 'translate('+markerOpt.x+','+markerOpt.y+')');
 			param.markerLayer.appendChild(image);
 			return image;
@@ -97,11 +121,17 @@
 			marker.remove();
 		}
 		this.panTo=function(position){
+			while (param.infoWindow.hasChildNodes()) {
+				param.infoWindow.removeChild(param.infoWindow.lastChild);
+			}
 			param.translateX=position.x;
 			param.translateY=position.y;
 			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
 		}
 		this.zoomTo=function(scale){
+			while (param.infoWindow.hasChildNodes()) {
+				param.infoWindow.removeChild(param.infoWindow.lastChild);
+			}
 			param.scale=scale;
 			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
 		}
@@ -131,6 +161,9 @@
 		}
 		svgMap.prototype.zoomEventOn = function () {
 			param.map.addEventListener("wheel", function(event){
+				while (param.infoWindow.hasChildNodes()) {
+					param.infoWindow.removeChild(param.infoWindow.lastChild);
+				}
 				event.preventDefault();
 				if(event.deltaY>0){
 					if(param.scale-param.scaleUnit<=0){

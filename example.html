@@ -21,7 +21,8 @@
 		y:300,
 		width:15,
 		height:15,
-		tooltip:'test'
+		tooltip:'test',
+		infoWindow:'test'
 	});
 	const icon2=svg.setMarker({
 		icon:'image/plane.png',
@@ -29,17 +30,27 @@
 		y:300,
 		width:15,
 		height:15,
-		tooltip:'test'
+		tooltip:'<h3>Marker A</h3><div>describtion</div>',
+		infoWindow:'<p>line1</p><p>line2</p><p>line3</p>'
+	});
+	const icon3=svg.setMarker({
+		icon:'image/plane.png',
+		x:600,
+		y:260,
+		width:15,
+		height:15,
+		tooltip:'<h3>Marker B</h3><div>describtion</div>',
+		infoWindow:'<p>line1</p>'
 	});
 	svg.removeMarker(icon1);
 	svg.panTo({
-		x:-150,
+		x:-300,
 		y:-200
 	});
 	svg.zoomTo(2);
 	const polyLine1=svg.setPolyLine({
-		positions:[{x:20,y:20},{x:30,y:30},{x:40,y:40},{x:50,y:50}],
-		color:'green'
+		positions:[{x:515,y:305},{x:600,y:270}],
+		color:'#68b6e2'
 	})
 </script>
 </body>

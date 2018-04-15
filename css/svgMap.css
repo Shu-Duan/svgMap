@@ -1,18 +1,40 @@
 .svgMap_tooltip {
 	position: absolute;
-	width: 200px;
-	height: auto;
 	padding: 10px;
-	background-color: rgba(128, 128, 128, 0.4);
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	border-radius: 10px;
-	-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-	-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-	box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-	pointer-events: none;
+	background-color: rgba(90, 90, 90);
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	color:white
+}
+
+.svgMap_infowindow {
+	position: absolute;
+	padding: 10px;
+	background-color: rgba(255, 255, 255);
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	border-width:1px;
+	border-style: solid;
 }
 
 .svgMap_hidden {
 	display:none;
+}
+
+.svgMap_close
+{
+	float:right;
+	cursor:pointer;
+	display:block;
+	box-sizing:border-box;
+	width:15px;
+	height:15px;
+	border-width:1.5px;
+	border-style: solid;
+	border-color:black;
+	border-radius:100%;
+	background: -webkit-linear-gradient(-45deg, transparent 0%, transparent 46%, black 46%,  black 56%,transparent 56%, transparent 100%), -webkit-linear-gradient(45deg, transparent 0%, transparent 46%, black 46%,  black 56%,transparent 56%, transparent 100%);
+	background-color:white;
 }
