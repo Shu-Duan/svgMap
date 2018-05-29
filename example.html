@@ -26,30 +26,30 @@
 	});
 	const icon2=svg.setMarker({
 		icon:'image/plane.png',
-		x:500,
-		y:300,
+		x:800,
+		y:215,
 		width:15,
 		height:15,
-		tooltip:'<h3>Marker A</h3><div>describtion</div>',
-		infoWindow:'<p>line1</p><p>line2</p><p>line3</p>'
+		tooltip:'<h3>桃園中正機場</h3>',
+		infoWindow:'<p>2018/06/19 13:30出發</p><p>第一航廈</p>'
 	});
 	const icon3=svg.setMarker({
 		icon:'image/plane.png',
-		x:600,
-		y:260,
+		x:820,
+		y:180,
 		width:15,
 		height:15,
-		tooltip:'<h3>Marker B</h3><div>describtion</div>',
-		infoWindow:'<p>line1</p>'
+		tooltip:'<h3>首爾仁川機場</h3>',
+		infoWindow:'<p>2018/06/19 18:00抵達</p>'
 	});
 	svg.removeMarker(icon1);
 	svg.panTo({
-		x:-300,
-		y:-200
+		x:-2800,
+		y:-550
 	});
-	svg.zoomTo(2);
+	svg.zoomTo(4);
 	const polyLine1=svg.setPolyLine({
-		positions:[{x:515,y:305},{x:600,y:270}],
+		positions:[{x:812,y:215},{x:825,y:195}],
 		color:'#68b6e2'
 	})
 </script>

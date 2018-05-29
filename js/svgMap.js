@@ -21,7 +21,8 @@
 			'translateXt' :0,
 			'translateYt' :0,
 			'scaleUnit':.5,
-			'mc':0
+			'mc':0,
+			'mvInterval':null
 		};
 		let mouseup=function(event){
 			me.zoomEventOff();
@@ -38,6 +39,10 @@
 			param.translateY=param.translateYt;
 		}
 		let mousemove=function(event){
+			clearTimeout(param.mvInterval);
+			param.mvInterval = setTimeout(function(){mvcallback(event);}, 30);
+		}
+		let mvcallback=function(event){
 			param.translateXt=(param.translateX-param.startX+event.clientX);
 			param.translateYt=(param.translateY-param.startY+event.clientY);
 			param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
@@ -60,7 +65,7 @@
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', me.option.url);
 			image.style.width=me.option.width;
 			image.style.height=me.option.height;
-			image.setAttribute('width', me.option.width);
+			image.setAttribute('width', me.option.width); //for safari
 			image.setAttribute('height', me.option.height);
 			param.zoomLayer.appendChild(image);
 			param.zoomLayer.appendChild(param.markerLayer);
@@ -82,6 +87,8 @@
 			image.setAttributeNS("http://www.w3.org/1999/xlink", 'xlink:href', markerOpt.icon);
 			image.style.width=markerOpt.width;
 			image.style.height=markerOpt.height;
+			image.setAttribute('width', markerOpt.width); //for safari
+			image.setAttribute('height', markerOpt.height);
 			image.addEventListener("mouseenter", function(event){
 				param.tooltipBox.innerHTML =markerOpt.tooltip;
 				param.tooltipBox.setAttribute('class','svgMap_tooltip');
@@ -157,6 +164,7 @@
 				param.map.addEventListener("mouseleave", mouseout);
 				param.map.addEventListener("mouseup", mouseup);
 				param.map.addEventListener("mousemove", mousemove);
+				console.info("position:"+param.startX+","+param.startY);
 			});
 		}
 		svgMap.prototype.zoomEventOn = function () {
