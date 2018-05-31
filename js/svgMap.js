@@ -5,8 +5,9 @@
     let svgMap = (function(option) {
 		let me=this;
 		me.option=option;
+		// common parameters
 		let param={
-			'targer':document.querySelector('#'+me.option.target),
+			'target':document.querySelector('#'+me.option.target),
 			'map' :document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
 			'zoomLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
 			'markerLayer' :document.createElementNS('http://www.w3.org/2000/svg', 'g'),
@@ -22,8 +23,10 @@
 			'translateYt' :0,
 			'scaleUnit':.5,
 			'mc':0,
-			'mvInterval':null
+			'mvInterval':null,
+			'viewScale':1
 		};
+		// mouseup event, cancel mousemove event
 		let mouseup=function(event){
 			me.zoomEventOff();
 			param.translateXt=(param.translateX-param.startX+event.clientX);
@@ -31,6 +34,7 @@
 			param.translateX=param.translateXt;
 			param.translateY=param.translateYt;
 		}
+		// mouseout event, cancel mousemove event
 		let mouseout=function(event){
 			me.zoomEventOff();
 			param.translateXt=(param.translateX-param.startX+event.clientX);
@@ -38,24 +42,32 @@
 			param.translateX=param.translateXt;
 			param.translateY=param.translateYt;
 		}
+		// mouse move evevt, you can adjust callback time to improve performance
 		let mousemove=function(event){
 			clearTimeout(param.mvInterval);
-			param.mvInterval = setTimeout(function(){mvcallback(event);}, 30);
+			param.mvInterval = setTimeout(function(){mvcallback(event);}, 0);
 		}
+		// mouse move callback function
 		let mvcallback=function(event){
-			param.translateXt=(param.translateX-param.startX+event.clientX);
-			param.translateYt=(param.translateY-param.startY+event.clientY);
+			// relocate map
+			param.translateXt=(param.translateX-(param.startX-event.clientX)*param.viewScale);
+			param.translateYt=(param.translateY-(param.startY-event.clientY)*param.viewScale);
 			param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
+			// relocate infowindows
 			for (let node of param.infoWindow.children) {
 				var image=document.querySelector('#marker_'+node.dataset.markerMapping);
 				node.style.left=image.getBoundingClientRect().x+'px';
 				node.style.top=image.getBoundingClientRect().y-node.offsetHeight+'px';
 			}
 		}
+		// init
     	this.init= function(){
 			me.initImage();
 			me.initMapEvent();
+			// calculate view scale
+			param.viewScale=me.option.width/param.target.offsetWidth;
     	}
+		// init background image
 		this.initImage=function(){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
 			param.map.setAttribute('viewBox', '0 0 '+me.option.width+' '+me.option.height);
@@ -72,14 +84,17 @@
 			param.zoomLayer.appendChild(param.polyLineLayer);
 			param.map.appendChild(param.zoomLayer);
 			param.tooltipBox.setAttribute('class','svgMap_tooltip svgMap_hidden');
-			param.targer.appendChild(param.tooltipBox);
-			param.targer.appendChild(param.infoWindow);
-			param.targer.appendChild(param.map);
+			param.target.appendChild(param.tooltipBox);
+			param.target.appendChild(param.infoWindow);
+			param.target.appendChild(param.map);
 		}
+		// init map event
 		this.initMapEvent=function(){
 			me.zoomEventOn();
 			me.dragEventOn();
+			me.resizeEventOn();
 		}
+		// set marker
 		this.setMarker=function(markerOpt){
 			let image = document.createElementNS('http://www.w3.org/2000/svg','image');
 			let mc=param.mc+=1;
@@ -124,9 +139,11 @@
 			param.markerLayer.appendChild(image);
 			return image;
 		}
+		// remove marker
 		this.removeMarker=function(marker){
 			marker.remove();
 		}
+		// relocate to the position
 		this.panTo=function(position){
 			while (param.infoWindow.hasChildNodes()) {
 				param.infoWindow.removeChild(param.infoWindow.lastChild);
@@ -135,6 +152,7 @@
 			param.translateY=position.y;
 			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
 		}
+		// zoom to the scale
 		this.zoomTo=function(scale){
 			while (param.infoWindow.hasChildNodes()) {
 				param.infoWindow.removeChild(param.infoWindow.lastChild);
@@ -142,6 +160,7 @@
 			param.scale=scale;
 			param.zoomLayer.setAttribute('transform','translate('+param.translateX+','+param.translateY+') scale('+param.scale+')');
 		}
+		// set polyline
 		this.setPolyLine=function(option){
 			let polyLine = document.createElementNS('http://www.w3.org/2000/svg','polyline');
 			let path=[];
@@ -157,6 +176,13 @@
 			param.polyLineLayer.appendChild(polyLine);
 			return polyLine;
 		}
+		// actual resize event
+		svgMap.prototype.resizeEventOn = function () {
+			window.addEventListener("resize", function(event){
+				param.viewScale=me.option.width/param.target.offsetWidth;
+			});
+		}
+		// actual move event
 		svgMap.prototype.dragEventOn = function () {
 			param.map.addEventListener("mousedown", function(event){
 				param.startX=event.clientX;
@@ -167,6 +193,7 @@
 				console.info("position:"+param.startX+","+param.startY);
 			});
 		}
+		// actual zoom event
 		svgMap.prototype.zoomEventOn = function () {
 			param.map.addEventListener("wheel", function(event){
 				while (param.infoWindow.hasChildNodes()) {
@@ -182,19 +209,21 @@
 					param.scale+=param.scaleUnit;
 				}
 				const p=me.getSvgPosition(event.clientX,event.clientY);
-				param.translateXt=(-1*p.x*param.scale)+(event.clientX-param.targer.offsetLeft+document.documentElement.scrollLeft)/(param.targer.clientWidth/me.option.width);
-				param.translateYt=(-1*p.y*param.scale)+(event.clientY-param.targer.offsetTop+document.documentElement.scrollTop)/(param.targer.clientWidth/me.option.width);
+				param.translateXt=(-1*p.x*param.scale)+(event.clientX-param.target.offsetLeft+document.documentElement.scrollLeft)/(param.target.clientWidth/me.option.width);
+				param.translateYt=(-1*p.y*param.scale)+(event.clientY-param.target.offsetTop+document.documentElement.scrollTop)/(param.target.clientWidth/me.option.width);
 				param.translateX=param.translateXt;
 				param.translateY=param.translateYt;
 				param.zoomLayer.setAttribute('transform','translate('+param.translateXt+','+param.translateYt+') scale('+param.scale+')');
 
 			});
 		}
+		// actual zoom off event
 		svgMap.prototype.zoomEventOff = function () {
 			param.map.removeEventListener("mouseleave", mouseout);
 			param.map.removeEventListener("mouseup", mouseup);
 			param.map.removeEventListener("mousemove",  mousemove);
 		}
+		// transform browser's position into svg's position
 		svgMap.prototype.getSvgPosition= function(clientX, clientY) {
 			let m = document.querySelector("#svgLayer_"+me.option.target).getScreenCTM();
 			let map = document.querySelector("#svgMap_"+me.option.target);
